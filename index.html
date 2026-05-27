@@ -167,5 +167,78 @@ var LS = [
     id:1, title:"Primeiro repositorio", desc:"git init, add e commit", xp:25,
     teoria:[
       "Um repositorio e a pasta do projeto sendo monitorada pelo Git. Para criar um use git init dentro da pasta.",
-      "Depois de criar ou editar arquivos voce precisa avisar o Git quais quer sal
+      "Depois de criar ou editar arquivos voce precisa avisar o Git quais quer salvar. Use git add nome-do-arquivo ou git add . para adicionar tudo.",
+      "O commit e o momento em que voce salva oficialmente as mudancas com uma mensagem explicando o que fez. Use git commit -m 'sua mensagem aqui'.",
+      "O fluxo basico sempre e o mesmo: editar o arquivo, git add, git commit. Repita isso sempre que fizer algo importante."
+    ],
+    cmds:["git init","git add .","git commit -m 'primeiro commit'","git status"],
+    resp:[
+      "Initialized empty Git repository in /projeto/.git/",
+      "Arquivos adicionados a area de preparacao.",
+      "[main (root-commit)] primeiro commit — 1 file changed",
+      "On branch main — nothing to commit, working tree clean"
+    ],
+    quiz:[
+      {q:"O que faz o comando git init?",opts:["Envia o projeto para o GitHub","Cria um repositorio Git na pasta atual","Baixa um projeto","Apaga o historico"],c:1,ok:"Certo! git init cria o repositorio na pasta.",err:"Errado. git init cria o repositorio Git na pasta atual."},
+      {q:"Qual comando salva as mudancas com uma mensagem?",opts:["git add","git push","git commit -m","git init"],c:2,ok:"Certo! git commit -m salva com mensagem.",err:"Errado. O comando correto e git commit -m 'mensagem'."}
+    ]
+  },
+  {
+    id:2, title:"Conectando ao GitHub", desc:"remote, push e pull", xp:30,
+    teoria:[
+      "Depois de criar um repositorio no GitHub, voce conecta sua pasta local a ele com o comando git remote add origin URL.",
+      "Para enviar seus commits ao GitHub use git push origin main. Isso manda tudo que voce commitou para a nuvem.",
+      "Para baixar atualizacoes do GitHub para sua maquina use git pull origin main. Util quando outra pessoa fez mudancas no projeto.",
+      "Sempre que comecar a trabalhar num projeto compartilhado, faca git pull primeiro para garantir que tem a versao mais recente."
+    ],
+    cmds:["git remote add origin https://github.com/usuario/repo.git","git push origin main","git pull origin main","git remote -v"],
+    resp:[
+      "Repositorio remoto adicionado com sucesso.",
+      "Branch main configurada. Arquivos enviados ao GitHub!",
+      "Already up to date.",
+      "origin  https://github.com/usuario/repo.git (fetch)\norigin  https://github.com/usuario/repo.git (push)"
+    ],
+    quiz:[
+      {q:"O que faz o git push?",opts:["Baixa arquivos do GitHub","Cria uma branch","Envia commits ao GitHub","Apaga o repositorio"],c:2,ok:"Certo! git push envia seus commits para o GitHub.",err:"Errado. git push envia os commits locais para o repositorio remoto."},
+      {q:"Qual comando baixa atualizacoes do GitHub?",opts:["git push","git clone","git pull","git fetch"],c:2,ok:"Certo! git pull baixa e integra as mudancas remotas.",err:"Errado. O comando correto e git pull."}
+    ]
+  },
+  {
+    id:3, title:"Branches", desc:"Trabalhando em paralelo", xp:35,
+    teoria:[
+      "Branch e uma ramificacao do projeto. Voce cria uma branch para desenvolver uma funcionalidade nova sem mexer no codigo principal.",
+      "Para criar uma branch use git branch nome-da-branch. Para mudar para ela use git checkout nome-da-branch. Ou faca os dois de uma vez com git checkout -b nome.",
+      "Quando terminar o trabalho na branch voce a une de volta a branch principal com git merge nome-da-branch.",
+      "A branch principal geralmente se chama main ou master. E uma boa pratica nunca desenvolver diretamente nela."
+    ],
+    cmds:["git branch nova-funcionalidade","git checkout nova-funcionalidade","git checkout -b outra-branch","git merge nova-funcionalidade"],
+    resp:[
+      "Branch nova-funcionalidade criada.",
+      "Switched to branch 'nova-funcionalidade'",
+      "Switched to a new branch 'outra-branch'",
+      "Merge feito com sucesso. Fast-forward."
+    ],
+    quiz:[
+      {q:"Para que serve uma branch?",opts:["Apagar commits antigos","Trabalhar em paralelo sem afetar o codigo principal","Conectar ao GitHub","Configurar o usuario"],c:1,ok:"Certo! Branches permitem trabalho paralelo e seguro.",err:"Errado. Branches servem para trabalhar em paralelo sem afetar o codigo principal."},
+      {q:"Qual comando cria e ja muda para uma nova branch?",opts:["git branch","git merge","git checkout -b","git push"],c:2,ok:"Certo! git checkout -b cria e muda de uma vez.",err:"Errado. O comando correto e git checkout -b nome-da-branch."}
+    ]
+  },
+  {
+    id:4, title:"Clonando e colaborando", desc:"clone, fork e pull request", xp:40,
+    teoria:[
+      "Para baixar um projeto do GitHub para sua maquina use git clone URL. Isso cria uma copia completa com todo o historico.",
+      "Fork e uma copia de um repositorio de outra pessoa para a sua conta no GitHub. Voce pode modificar livremente sem afetar o original.",
+      "Depois de fazer mudancas no fork voce pode propor que o dono do projeto original aceite suas mudancas atraves de um Pull Request.",
+      "Pull Request e a forma de colaborar em projetos open source. Voce sugere mudancas e o dono decide se aceita ou nao."
+    ],
+    cmds:["git clone https://github.com/usuario/repo.git","git clone https://github.com/usuario/repo.git minha-pasta","git log --oneline","git diff"],
+    resp:[
+      "Cloning into 'repo'... done.",
+      "Cloning into 'minha-pasta'... done.",
+      "a1b2c3d Adiciona funcionalidade X\n4e5f6g7 Corrige bug no login\n8h9i0j1 Primeiro commit",
+      "diff --git a/index.html b/index.html — mudancas encontradas"
+    ],
+    quiz:[
+      {q:"O que faz o git clone?",opts:["Cria uma branch","Apaga o repositorio local","Baixa uma copia completa do repositorio","Envia arquivos ao GitHub"],c:2,ok:"Certo! git clone baixa uma copia completa do projeto.",err:"Errado. git clone baixa uma copia completa do repositorio com todo o historico."},
+      {q:"O que e um Pull Request?",opts:["Um comando do Git","Uma proposta de mudanca para o dono do projeto aceitar","Um tipo de branch","Um erro no codigo
 
