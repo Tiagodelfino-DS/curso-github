@@ -130,8 +130,8 @@ header { background: rgba(255,255,255,0.05); padding: 15px 30px; display: flex; 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="modalTitle">Titulo da Aula</h2>
-      <button class="btn-close" onclick="document.getElementById('modalOverlay').classList.remove('active')">X</button>
+      <h2 id="modalTitle"></h2>
+      <button class="btn-close" onclick="fecharModal()">X</button>
     </div>
     <div class="tabs">
       <button class="tab active" onclick="switchTab('teoria',this)">Teoria</button>
@@ -175,8 +175,8 @@ var LS = [
     resp:[
       "Initialized empty Git repository in /projeto/.git/",
       "Arquivos adicionados a area de preparacao.",
-      "[main (root-commit)] primeiro commit — 1 file changed",
-      "On branch main — nothing to commit, working tree clean"
+      "[main (root-commit)] primeiro commit - 1 file changed",
+      "On branch main - nothing to commit, working tree clean"
     ],
     quiz:[
       {q:"O que faz o comando git init?",opts:["Envia o projeto para o GitHub","Cria um repositorio Git na pasta atual","Baixa um projeto","Apaga o historico"],c:1,ok:"Certo! git init cria o repositorio na pasta.",err:"Errado. git init cria o repositorio Git na pasta atual."},
@@ -196,7 +196,7 @@ var LS = [
       "Repositorio remoto adicionado com sucesso.",
       "Branch main configurada. Arquivos enviados ao GitHub!",
       "Already up to date.",
-      "origin  https://github.com/usuario/repo.git (fetch)\norigin  https://github.com/usuario/repo.git (push)"
+      "origin  https://github.com/usuario/repo.git (fetch+push)"
     ],
     quiz:[
       {q:"O que faz o git push?",opts:["Baixa arquivos do GitHub","Cria uma branch","Envia commits ao GitHub","Apaga o repositorio"],c:2,ok:"Certo! git push envia seus commits para o GitHub.",err:"Errado. git push envia os commits locais para o repositorio remoto."},
@@ -231,14 +231,216 @@ var LS = [
       "Depois de fazer mudancas no fork voce pode propor que o dono do projeto original aceite suas mudancas atraves de um Pull Request.",
       "Pull Request e a forma de colaborar em projetos open source. Voce sugere mudancas e o dono decide se aceita ou nao."
     ],
-    cmds:["git clone https://github.com/usuario/repo.git","git clone https://github.com/usuario/repo.git minha-pasta","git log --oneline","git diff"],
+    cmds:["git clone https://github.com/usuario/repo.git","git log --oneline","git diff","git status"],
     resp:[
       "Cloning into 'repo'... done.",
-      "Cloning into 'minha-pasta'... done.",
       "a1b2c3d Adiciona funcionalidade X\n4e5f6g7 Corrige bug no login\n8h9i0j1 Primeiro commit",
-      "diff --git a/index.html b/index.html — mudancas encontradas"
+      "diff --git a/index.html b/index.html - mudancas encontradas",
+      "On branch main - your branch is up to date"
     ],
     quiz:[
       {q:"O que faz o git clone?",opts:["Cria uma branch","Apaga o repositorio local","Baixa uma copia completa do repositorio","Envia arquivos ao GitHub"],c:2,ok:"Certo! git clone baixa uma copia completa do projeto.",err:"Errado. git clone baixa uma copia completa do repositorio com todo o historico."},
-      {q:"O que e um Pull Request?",opts:["Um comando do Git","Uma proposta de mudanca para o dono do projeto aceitar","Um tipo de branch","Um erro no codigo
+      {q:"O que e um Pull Request?",opts:["Um comando do Git","Uma proposta de mudanca para o dono do projeto aceitar","Um tipo de branch","Um erro no codigo"],c:1,ok:"Certo! Pull Request e uma proposta de mudanca.",err:"Errado. Pull Request e uma proposta de mudanca que voce envia para o dono do projeto avaliar."}
+    ]
+  }
+];
 
+var conquistas = [
+  {icon:"🚀", name:"Primeiro Passo", desc:"Completou a primeira aula"},
+  {icon:"💾", name:"Commiteiro", desc:"Completou a aula de commits"},
+  {icon:"☁️", name:"Na Nuvem", desc:"Conectou ao GitHub"},
+  {icon:"🌿", name:"Brancheiro", desc:"Dominou as branches"},
+  {icon:"🤝", name:"Colaborador", desc:"Completou o curso"}
+];
+
+var progresso = JSON.parse(localStorage.getItem('gitquest') || '{"xp":0,"nivel":1,"concluidas":[]}');
+var aulaAtual = 0;
+var quizIndex = 0;
+var quizRespondido = false;
+
+function salvar() {
+  localStorage.setItem('gitquest', JSON.stringify(progresso));
+}
+
+function atualizarXP() {
+  var xpNivel = progresso.nivel * 100;
+  var xpAtual = progresso.xp % 100;
+  document.getElementById('xpFill').style.width = (xpAtual) + '%';
+  document.getElementById('xpText').textContent = xpAtual + ' / 100';
+  document.getElementById('nivelLabel').textContent = 'Nivel ' + progresso.nivel;
+  var total = LS.length;
+  var feitas = progresso.concluidas.length;
+  document.getElementById('progressText').textContent = feitas + ' de ' + total + ' aulas concluidas';
+  document.getElementById('progressFill').style.width = (feitas / total * 100) + '%';
+}
+
+function renderTrail() {
+  var container = document.getElementById('trailContainer');
+  container.innerHTML = '';
+  LS.forEach(function(aula, i) {
+    var done = progresso.concluidas.indexOf(i) >= 0;
+    var card = document.createElement('div');
+    card.className = 'lesson-card' + (done ? ' completed' : '');
+    card.innerHTML =
+      '<div class="lesson-icon">' + (i+1) + '</div>' +
+      '<div class="lesson-info"><h3>' + aula.title + '</h3><p>' + aula.desc + '</p></div>' +
+      '<span class="lesson-badge ' + (done ? 'badge-done' : 'badge-free') + '">' + (done ? 'Feito' : '+'+aula.xp+' XP') + '</span>';
+    card.onclick = function() { abrirAula(i); };
+    container.appendChild(card);
+  });
+}
+
+function renderConquistas() {
+  var grid = document.getElementById('achievementsGrid');
+  grid.innerHTML = '';
+  conquistas.forEach(function(c, i) {
+    var unlocked = progresso.concluidas.indexOf(i) >= 0;
+    var div = document.createElement('div');
+    div.className = 'achievement' + (unlocked ? ' unlocked' : '');
+    div.innerHTML = '<div class="ach-icon">' + c.icon + '</div><div class="ach-name">' + c.name + '</div>';
+    grid.appendChild(div);
+  });
+}
+
+function abrirAula(i) {
+  aulaAtual = i;
+  quizIndex = 0;
+  quizRespondido = false;
+  var aula = LS[i];
+  document.getElementById('modalTitle').textContent = aula.title;
+
+  // TEORIA
+  var teoria = '<div class="lesson-content">';
+  aula.teoria.forEach(function(p) { teoria += '<p>' + p + '</p>'; });
+  teoria += '<div class="tip-box">';
+  aula.cmds.forEach(function(cmd) { teoria += '$ ' + cmd + '\n'; });
+  teoria += '</div></div>';
+  document.getElementById('tab-teoria').innerHTML = teoria;
+
+  // TERMINAL
+  var pratica = '<div class="terminal" id="terminal"><span class="info">Terminal simulado — digite os comandos abaixo</span></div>';
+  pratica += '<div class="terminal-input-row"><span class="terminal-prompt">$</span><input class="terminal-input" id="termInput" placeholder="Digite um comando..." onkeydown="if(event.key===\'Enter\')rodarCmd()"/></div>';
+  pratica += '<button class="btn-run" onclick="rodarCmd()">Executar</button>';
+  pratica += '<button class="btn-clear" onclick="limparTerminal()">Limpar</button>';
+  pratica += '<div class="cmds-lista"><p>Comandos desta aula:</p>';
+  aula.cmds.forEach(function(cmd) { pratica += '<span>$ ' + cmd + '</span>'; });
+  pratica += '</div>';
+  document.getElementById('tab-pratica').innerHTML = pratica;
+
+  // QUIZ
+  renderQuiz();
+
+  switchTab('teoria', document.querySelector('.tab'));
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function renderQuiz() {
+  var aula = LS[aulaAtual];
+  var q = aula.quiz[quizIndex];
+  var html = '<p class="quiz-question">' + (quizIndex+1) + '. ' + q.q + '</p><div class="quiz-options">';
+  q.opts.forEach(function(opt, i) {
+    html += '<button class="quiz-option" onclick="responderQuiz(this,' + i + ')">' + opt + '</button>';
+  });
+  html += '</div>';
+  html += '<div class="quiz-feedback" id="quizFeedback"></div>';
+  html += '<button class="btn-next-quiz" id="btnNextQuiz" onclick="proximaQuiz()">Proxima pergunta</button>';
+  document.getElementById('tab-quiz').innerHTML = html;
+  quizRespondido = false;
+}
+
+function responderQuiz(btn, escolha) {
+  if (quizRespondido) return;
+  quizRespondido = true;
+  var aula = LS[aulaAtual];
+  var q = aula.quiz[quizIndex];
+  var opts = document.querySelectorAll('.quiz-option');
+  opts.forEach(function(b) { b.disabled = true; });
+  var fb = document.getElementById('quizFeedback');
+  if (escolha === q.c) {
+    btn.classList.add('correct');
+    fb.textContent = q.ok;
+    fb.className = 'quiz-feedback show ok';
+  } else {
+    btn.classList.add('wrong');
+    opts[q.c].classList.add('correct');
+    fb.textContent = q.err;
+    fb.className = 'quiz-feedback show err';
+  }
+  var btnNext = document.getElementById('btnNextQuiz');
+  var isUltima = quizIndex >= aula.quiz.length - 1;
+  btnNext.textContent = isUltima ? 'Concluir aula' : 'Proxima pergunta';
+  btnNext.className = 'btn-next-quiz show';
+}
+
+function proximaQuiz() {
+  var aula = LS[aulaAtual];
+  if (quizIndex < aula.quiz.length - 1) {
+    quizIndex++;
+    renderQuiz();
+  } else {
+    concluirAula();
+  }
+}
+
+function concluirAula() {
+  var aula = LS[aulaAtual];
+  if (progresso.concluidas.indexOf(aulaAtual) < 0) {
+    progresso.concluidas.push(aulaAtual);
+    progresso.xp += aula.xp;
+    progresso.nivel = Math.floor(progresso.xp / 100) + 1;
+    salvar();
+    mostrarToast('+' + aula.xp + ' XP! Aula concluida!');
+  }
+  fecharModal();
+  atualizarXP();
+  renderTrail();
+  renderConquistas();
+}
+
+function rodarCmd() {
+  var input = document.getElementById('termInput');
+  var cmd = input.value.trim();
+  if (!cmd) return;
+  var terminal = document.getElementById('terminal');
+  var aula = LS[aulaAtual];
+  var idx = aula.cmds.indexOf(cmd);
+  var linha = '<span class="cmd">$ ' + cmd + '</span>';
+  if (idx >= 0) {
+    linha += '<span class="out">' + aula.resp[idx] + '</span>';
+  } else {
+    linha += '<span class="err">Comando nao reconhecido. Tente um dos comandos da lista.</span>';
+  }
+  terminal.innerHTML += linha;
+  terminal.scrollTop = terminal.scrollHeight;
+  input.value = '';
+}
+
+function limparTerminal() {
+  var terminal = document.getElementById('terminal');
+  if (terminal) terminal.innerHTML = '<span class="info">Terminal limpo.</span>';
+}
+
+function switchTab(nome, btn) {
+  document.querySelectorAll('.tab-content').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('tab-' + nome).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function fecharModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+function mostrarToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 3000);
+}
+
+atualizarXP();
+renderTrail();
+renderConquistas();
+</script>
+</body>
+</html>
